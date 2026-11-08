@@ -1,14 +1,63 @@
-# forms: trae las herramientas de Django para construir formularios
 from django import forms
-# Servicio: el modelo de la Unidad 2, importado desde este mismo directorio
-from .models import Servicio
+from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
+from .models import Servicio, Categoria, Factura, DetalleFactura
 
-# class ServicioForm: un formulario generado automáticamente a partir del modelo Servicio
+
 class ServicioForm(forms.ModelForm):
-    # Meta: clase interna donde le dices a Django de qué modelo y qué campos generar
     class Meta:
-        # model: el modelo del que se generan los campos del formulario
         model = Servicio
-        # fields: lista de campos del modelo que sí aparecen en el formulario
-        # "propietario" queda fuera a propósito: lo asigna la vista, no el usuario
         fields = ['titulo', 'descripcion', 'precio', 'categoria']
+
+    def clean_precio(self):
+        precio = self.cleaned_data['precio']
+        if precio <= 0:
+            raise ValidationError('El precio debe ser mayor a 0.')
+        return precio
+
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'descripcion']
+        widgets = {'descripcion': forms.Textarea(attrs={'rows': 2})}
+
+
+class FacturaForm(forms.ModelForm):
+    class Meta:
+        model = Factura
+        fields = ['cliente', 'fecha']
+        widgets = {
+            'fecha': forms.DateInput(
+                attrs={'type': 'date'},
+                format='%Y-%m-%d'
+            )
+        }
+
+
+class DetalleFacturaForm(forms.ModelForm):
+    class Meta:
+        model = DetalleFactura
+        fields = ['servicio', 'cantidad']
+
+    def __init__(self, *args, usuario=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['servicio'].queryset = (
+            Servicio.objects
+            .filter(propietario=usuario)
+            .select_related('categoria')
+        )
+        self.fields['servicio'].label_from_instance = (
+            lambda s: f'{s.titulo} — ${s.precio}'
+        )
+
+
+DetalleFormSet = inlineformset_factory(
+    Factura,
+    DetalleFactura,
+    form=DetalleFacturaForm,
+    extra=3,
+    min_num=1,
+    validate_min=True,
+    can_delete=False,
+)
