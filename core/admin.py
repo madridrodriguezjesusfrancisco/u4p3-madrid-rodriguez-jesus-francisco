@@ -1,7 +1,24 @@
-# admin: el módulo que arma el panel /admin automáticamente
 from django.contrib import admin
-# Servicio: el modelo que escribiste en el paso 02, importado desde este mismo directorio
-from .models import Servicio
+from .models import Servicio, Categoria, Factura, DetalleFactura
 
-# register: le dice a Django "mostrá este modelo en el panel /admin, con un CRUD ya armado"
-admin.site.register(Servicio)
+
+@admin.register(Servicio)
+class ServicioAdmin(admin.ModelAdmin):
+    list_display = ['titulo', 'categoria', 'precio', 'propietario']
+    list_filter = ['categoria']
+
+
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'descripcion']
+
+
+class DetalleFacturaInline(admin.TabularInline):
+    model = DetalleFactura
+    extra = 1
+
+
+@admin.register(Factura)
+class FacturaAdmin(admin.ModelAdmin):
+    list_display = ['folio', 'cliente', 'fecha', 'usuario']
+    inlines = [DetalleFacturaInline]
