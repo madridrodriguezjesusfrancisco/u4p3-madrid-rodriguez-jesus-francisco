@@ -1,30 +1,34 @@
-# models: trae las herramientas de Django para describir tablas como clases
 from django.db import models
-# User: el modelo de usuario que Django ya trae incluido (login, contraseñas, sesiones)
 from django.contrib.auth.models import User
 
-# class Servicio: se convierte en la tabla "core_servicio" dentro de MySQL
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=60, unique=True)
+    descripcion = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
 class Servicio(models.Model):
-    # propietario: relaciona este servicio con el usuario dueño
-    # on_delete=CASCADE: si se borra ese usuario, se borran también sus servicios
     propietario = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    # titulo: texto corto y obligatorio, máximo 120 caracteres
     titulo = models.CharField(max_length=120)
-
-    # descripcion: texto largo, sin límite fijo de caracteres
     descripcion = models.TextField()
-
-    # precio: número decimal — hasta 8 dígitos en total, 2 después del punto (ej. 1500.00)
     precio = models.DecimalField(max_digits=8, decimal_places=2)
 
-    # categoria: texto corto para clasificar el servicio (ej. "Tutorías", "Diseño")
+    # En este paso conservamos la categoría de texto y añadimos una FK temporal.
     categoria = models.CharField(max_length=60)
+    categoria_ref = models.ForeignKey(
+        Categoria,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='servicios'
+    )
 
-    # creado_en: Django guarda automáticamente la fecha y hora cuando se crea el registro
     creado_en = models.DateTimeField(auto_now_add=True)
 
-    # __str__: mismo método, no cambia el nombre
     def __str__(self):
-        # f-string: arma un texto con el título, un guion y el precio del objeto
-        return f"{self.titulo} — ${self.precio}"
+        return self.titulo
