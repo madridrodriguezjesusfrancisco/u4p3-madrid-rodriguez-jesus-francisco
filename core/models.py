@@ -18,16 +18,12 @@ class Servicio(models.Model):
     titulo = models.CharField(max_length=120)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=8, decimal_places=2)
-
-    # En este paso conservamos la categoría de texto y añadimos una FK temporal.
-    categoria = models.CharField(max_length=60)
-    categoria_ref = models.ForeignKey(
+    categoria = models.ForeignKey(
         Categoria,
         on_delete=models.PROTECT,
         null=True,
         related_name='servicios'
     )
-
     creado_en = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
