@@ -1,0 +1,70 @@
+{% extends 'core/base.html' %}
+
+{% block titulo %}Nueva factura{% endblock %}
+
+{% block contenido %}
+  <h1 class="text-2xl font-bold mb-4">Nueva factura</h1>
+
+  <form method="POST" class="space-y-6">
+    {% csrf_token %}
+
+    <div class="grid gap-4 sm:grid-cols-2 max-w-2xl">
+      {{ form.as_p }}
+    </div>
+
+    {{ formset.management_form }}
+
+    {% if formset.non_form_errors %}
+      <div class="bg-red-100 text-red-800 px-4 py-2 rounded-lg">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+
+    <div class="overflow-x-auto">
+      <table class="w-full border border-slate-200 rounded-lg overflow-hidden">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="text-left px-3 py-2 w-10">#</th>
+            <th class="text-left px-3 py-2">Servicio</th>
+            <th class="text-left px-3 py-2 w-32">Cantidad</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for renglon in formset %}
+            <tr class="border-t border-slate-200 align-top">
+              <td class="px-3 py-2 text-slate-500">
+                {{ forloop.counter }}
+                {% for oculto in renglon.hidden_fields %}
+                  {{ oculto }}
+                {% endfor %}
+              </td>
+              <td class="px-3 py-2">
+                {{ renglon.servicio }}{{ renglon.servicio.errors }}
+              </td>
+              <td class="px-3 py-2">
+                {{ renglon.cantidad }}{{ renglon.cantidad.errors }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-sm text-slate-500">
+      Llena al menos un renglón. Los renglones sin servicio se ignoran.
+      El precio se toma del servicio al guardar.
+    </p>
+
+    <button
+      type="submit"
+      class="w-auto bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg"
+    >
+      Guardar factura
+    </button>
+
+    <a href="{% url 'facturas' %}" class="ml-3 text-slate-600 underline">
+      Cancelar
+    </a>
+  </form>
+{% endblock %}

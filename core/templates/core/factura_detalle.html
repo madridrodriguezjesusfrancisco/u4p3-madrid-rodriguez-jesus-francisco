@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block titulo %}Factura {{ factura.folio }}{% endblock %}
+
+{% block contenido %}
+  <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
+    <div>
+      <p class="text-sm text-slate-500">Factura</p>
+      <h1 class="text-2xl font-bold font-mono">{{ factura.folio }}</h1>
+      <p class="mt-1">Cliente: <b>{{ factura.cliente }}</b></p>
+    </div>
+
+    <div class="text-right text-sm">
+      <p>Fecha: <b>{{ factura.fecha|date:"d/m/Y" }}</b></p>
+      <p>Emitida por: <b>{{ factura.usuario.username }}</b></p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full border border-slate-200 rounded-lg overflow-hidden">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="text-left px-4 py-2">Servicio</th>
+          <th class="text-left px-4 py-2">Categoría</th>
+          <th class="text-right px-4 py-2">Cantidad</th>
+          <th class="text-right px-4 py-2">Precio unitario</th>
+          <th class="text-right px-4 py-2">Subtotal</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for detalle in detalles %}
+          <tr class="border-t border-slate-200">
+            <td class="px-4 py-2">{{ detalle.servicio.titulo }}</td>
+            <td class="px-4 py-2">
+              {{ detalle.servicio.categoria|default:"Sin categoría" }}
+            </td>
+            <td class="px-4 py-2 text-right">{{ detalle.cantidad }}</td>
+            <td class="px-4 py-2 text-right">
+              ${{ detalle.precio_unitario }}
+            </td>
+            <td class="px-4 py-2 text-right">
+              ${{ detalle.subtotal|floatformat:2 }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+      <tfoot>
+        <tr class="border-t-2 border-slate-300 bg-slate-50">
+          <td colspan="4" class="px-4 py-3 text-right font-semibold">
+            Total
+          </td>
+          <td class="px-4 py-3 text-right text-lg font-bold">
+            ${{ total|floatformat:2 }}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <a href="{% url 'facturas' %}" class="inline-block mt-6 text-slate-600 underline">
+    ← Volver a facturas
+  </a>
+{% endblock %}

@@ -1,60 +1,62 @@
-{# base.html: el "molde" de la Semana 5, ahora con barra de sesión y mensajes flash #}
+{# base.html: molde compartido por todas las páginas #}
 <!DOCTYPE html>
-{# lang="es": el contenido de la página está en español #}
 <html lang="es">
-{# head: datos de la página que no se ven (título, acentos, estilos) #}
 <head>
-  {# charset UTF-8: permite acentos y ñ #}
   <meta charset="UTF-8">
-  {# viewport: hace que la página se adapte al ancho del celular #}
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {# block titulo: cada página puede cambiar el texto de la pestaña; si no lo cambia, dice "Servicios" #}
   <title>{% block titulo %}Servicios{% endblock %}</title>
-  {# Play CDN de Tailwind: el mismo que usaste en la Semana 2 #}
   <script src="https://cdn.tailwindcss.com"></script>
-  {# style: reglas mínimas para que se vean los campos que dibuja form.as_p (Tailwind les quita el borde) #}
   <style>
-    /* input, textarea, select: borde gris, esquinas redondeadas, relleno y ancho completo en cada campo */
-    input, textarea, select { border: 1px solid #94a3b8; border-radius: .5rem; padding: .4rem .6rem; width: 100%; }
-    /* label: cada etiqueta en su propia línea y en negritas */
-    label { display: block; font-weight: 600; margin-bottom: .2rem; }
-    /* .errorlist: la lista de errores que genera Django; se pinta en rojo */
-    .errorlist { color: #dc2626; font-size: .9rem; }
-    /* .helptext: los textos de ayuda de Django (ej. reglas de contraseña), en gris y pequeños */
-    .helptext { color: #64748b; font-size: .8rem; display: block; }
-  {# cierra el bloque de estilos #}
+    input, textarea, select {
+      border: 1px solid #94a3b8;
+      border-radius: .5rem;
+      padding: .4rem .6rem;
+      width: 100%;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: .2rem;
+    }
+    .errorlist {
+      color: #dc2626;
+      font-size: .9rem;
+    }
+    .helptext {
+      color: #64748b;
+      font-size: .8rem;
+      display: block;
+    }
   </style>
-{# cierra el head #}
 </head>
-{# body: lo que se ve; max-w-2xl + mx-auto centran el contenido con un ancho máximo #}
-<body class="max-w-2xl mx-auto py-10 px-6 bg-white text-slate-900">
-  {# nav: NUEVA barra superior; flex + justify-end alinea los enlaces a la derecha #}
-  <nav class="flex justify-end items-center gap-4 mb-6 text-sm">
-    {# if user.is_authenticated: True si hay sesión iniciada, False si el visitante es anónimo #}
-    {% if user.is_authenticated %}
-      {# user.username: nombre del usuario que inició sesión #}
-      <span>Hola, <b>{{ user.username }}</b></span>
-      {# enlace a la ruta con name='logout' para cerrar la sesión #}
-      <a href="{% url 'logout' %}" class="text-blue-600 underline">Cerrar sesión</a>
-    {# else: lo que ve un visitante SIN sesión iniciada #}
-    {% else %}
-      {# enlace a la ruta con name='login' #}
-      <a href="{% url 'login' %}" class="text-blue-600 underline">Iniciar sesión</a>
-      {# enlace a la ruta con name='registro' para crear una cuenta nueva #}
-      <a href="{% url 'registro' %}" class="text-blue-600 underline">Crear cuenta</a>
-    {# endif: fin del bloque con sesión / sin sesión #}
-    {% endif %}
-  {# cierra la barra superior #}
+<body class="max-w-5xl mx-auto py-8 px-4 sm:px-6 bg-white text-slate-900">
+  <nav class="flex flex-wrap justify-between items-center gap-3 mb-6 text-sm border-b border-slate-200 pb-4">
+    <div class="flex flex-wrap gap-4 font-semibold">
+      {% if user.is_authenticated %}
+        <a href="{% url 'servicios' %}" class="text-blue-700 hover:underline">Servicios</a>
+        <a href="{% url 'categorias' %}" class="text-blue-700 hover:underline">Categorías</a>
+        <a href="{% url 'facturas' %}" class="text-blue-700 hover:underline">Facturas</a>
+        <a href="{% url 'reportes' %}" class="text-blue-700 hover:underline">Reportes SQL</a>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center gap-4">
+      {% if user.is_authenticated %}
+        <span>Hola, <b>{{ user.username }}</b></span>
+        <a href="{% url 'logout' %}" class="text-blue-600 underline">Cerrar sesión</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="text-blue-600 underline">Iniciar sesión</a>
+        <a href="{% url 'registro' %}" class="text-blue-600 underline">Crear cuenta</a>
+      {% endif %}
+    </div>
   </nav>
-  {# for message in messages: recorre los mensajes guardados con messages.success() o messages.info() #}
+
   {% for message in messages %}
-    {# cada mensaje se dibuja en una cajita verde (fondo emerald-100, texto emerald-800) #}
-    <div class="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg mb-4">{{ message }}</div>
-  {# endfor: fin de la repetición de mensajes #}
+    <div class="{% if message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-emerald-100 text-emerald-800{% endif %} px-4 py-2 rounded-lg mb-4">
+      {{ message }}
+    </div>
   {% endfor %}
-  {# block contenido: aquí cada página (listado, formularios, login, registro) pone lo suyo #}
+
   {% block contenido %}{% endblock %}
-{# cierra el body #}
 </body>
-{# cierra el documento HTML #}
 </html>

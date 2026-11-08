@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+
+{% block titulo %}Facturas{% endblock %}
+
+{% block contenido %}
+  <h1 class="text-2xl font-bold mb-6">Facturas</h1>
+
+  <a
+    href="{% url 'crear_factura' %}"
+    class="inline-block mb-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
+  >
+    + Nueva factura
+  </a>
+
+  <div class="overflow-x-auto">
+    <table class="w-full border border-slate-200 rounded-lg overflow-hidden">
+      <thead class="bg-slate-100">
+        <tr>
+          <th class="text-left px-4 py-2">Folio</th>
+          <th class="text-left px-4 py-2">Fecha</th>
+          <th class="text-left px-4 py-2">Cliente</th>
+          <th class="text-right px-4 py-2">Partidas</th>
+          <th class="text-right px-4 py-2">Total</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for factura in facturas %}
+          <tr class="border-t border-slate-200">
+            <td class="px-4 py-2">
+              <a
+                href="{% url 'detalle_factura' factura.pk %}"
+                class="text-blue-600 underline font-mono"
+              >
+                {{ factura.folio }}
+              </a>
+            </td>
+            <td class="px-4 py-2">{{ factura.fecha|date:"d/m/Y" }}</td>
+            <td class="px-4 py-2">{{ factura.cliente }}</td>
+            <td class="px-4 py-2 text-right">{{ factura.partidas }}</td>
+            <td class="px-4 py-2 text-right font-semibold">
+              ${{ factura.total|floatformat:2 }}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-slate-500 py-6">
+              Aún no tienes facturas. ¡Crea la primera!
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if facturas.paginator.num_pages > 1 %}
+    <nav class="mt-4 flex items-center gap-2" aria-label="Paginación">
+      {% if facturas.has_previous %}
+        <a
+          href="?page={{ facturas.previous_page_number }}"
+          class="text-blue-600 underline px-2 py-2"
+        >
+          ← Anterior
+        </a>
+      {% endif %}
+
+      <span class="text-slate-500">
+        Página {{ facturas.number }} de {{ facturas.paginator.num_pages }}
+      </span>
+
+      {% if facturas.has_next %}
+        <a
+          href="?page={{ facturas.next_page_number }}"
+          class="text-blue-600 underline px-2 py-2"
+        >
+          Siguiente →
+        </a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}

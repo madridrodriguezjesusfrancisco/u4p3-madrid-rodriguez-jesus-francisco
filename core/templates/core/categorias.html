@@ -1,0 +1,75 @@
+{% extends 'core/base.html' %}
+
+{% block titulo %}Categorías{% endblock %}
+
+{% block contenido %}
+  <h1 class="text-2xl font-bold mb-6">Categorías</h1>
+
+  <div class="grid gap-6 md:grid-cols-3">
+    <form method="POST" class="space-y-3 border border-slate-200 rounded-xl p-4 h-fit">
+      {% csrf_token %}
+      <h2 class="font-semibold">Nueva categoría</h2>
+      {{ form.as_p }}
+      <button
+        type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg"
+      >
+        Guardar
+      </button>
+    </form>
+
+    <div class="md:col-span-2 overflow-x-auto">
+      <table class="w-full border border-slate-200 rounded-lg overflow-hidden">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="text-left px-4 py-2">Categoría</th>
+            <th class="text-right px-4 py-2">Mis servicios</th>
+            <th class="text-left px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for categoria in categorias %}
+            <tr class="border-t border-slate-200">
+              <td class="px-4 py-2">
+                <b>{{ categoria.nombre }}</b><br>
+                <span class="text-sm text-slate-500">{{ categoria.descripcion }}</span>
+              </td>
+              <td class="px-4 py-2 text-right">
+                {{ categoria.total_servicios }}
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <a
+                  href="{% url 'editar_categoria' categoria.pk %}"
+                  class="text-blue-600 underline"
+                >
+                  Editar
+                </a>
+                <form
+                  method="POST"
+                  action="{% url 'eliminar_categoria' categoria.pk %}"
+                  class="inline"
+                  onsubmit="return confirm('¿Eliminar esta categoría?');"
+                >
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    class="text-red-600 underline ml-3 w-auto"
+                  >
+                    Eliminar
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center text-slate-500 py-6">
+                Aún no hay categorías. Crea la primera con el formulario.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+  
