@@ -58,7 +58,11 @@ def crear_servicio(request):
         if form.is_valid():
             nuevo = form.save(commit=False)
             nuevo.propietario = request.user
+             # save(): no se toca
             nuevo.save()
+            # messages.success: NUEVO; se guarda ahora y se muestra una vez en la siguiente página
+            messages.success(request, f'Servicio "{nuevo.titulo}" creado.')
+            # redirect: el listado usa base.html, que ya dibuja los mensajes
             return redirect('servicios')
     else:
         form = ServicioForm()
